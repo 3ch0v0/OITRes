@@ -13,6 +13,7 @@
 #include "shader.h"
 
 float cubeVertices[] = {
+	// positions          // col			//SPECIFY ALPHA COORDINATE HERE
 	-0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 0.0f,	1.0f,
 	 0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 0.0f,	1.0f,
 	 0.5f,  0.5f, -0.5f,  1.0f, 0.0f, 0.0f,	1.0f,
@@ -57,6 +58,7 @@ float cubeVertices[] = {
 };
 
 float planeVertices[] = {
+	// positions          // col			//SPECIFY ALPHA COORDINATE HERE
 	 5.0f, -0.5f,  5.0f,  1.0f, 1.0f, 1.f,	1.0f,
 	-5.0f, -0.5f,  5.0f,  1.0f, 1.0f, 1.f,	1.0f,
 	-5.0f, -0.5f, -5.0f,  1.0f, 1.0f, 1.f,	1.0f,
@@ -67,9 +69,55 @@ float planeVertices[] = {
 };
 
 float transparentVertices[] = {
-	-.5f,  -0.5f,  0.0f,		1.0f,  0.0f, 0.0f,	0.5f,
-	.0f, 0.5f,  0.0f,			1.0f,  0.0f, 0.0f,	0.5f,
-	.5f, -0.5f,  0.0f,			1.0f,  0.0f, 0.0f,	0.5f,
+	// positions				// RGB				//SPECIFY ALPHA COORDINATE HERE
+	-.5f,  -0.5f,  0.0f,		1.0f,  0.0f, 0.0f,	0.2f,
+	.0f, 0.5f,  0.0f,			1.0f,  0.0f, 0.0f,	0.2f,
+	.5f, -0.5f,  0.0f,			1.0f,  0.0f, 0.0f,	0.2f,
+};
+
+float transparentCubeVertices[] = {
+	// positions          // col			//SPECIFY ALPHA COORDINATE HERE
+	-0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 0.0f,	0.5f,
+	 0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 0.0f,	0.5f,
+	 0.5f,  0.5f, -0.5f,  1.0f, 0.0f, 0.0f,	0.5f,
+	 0.5f,  0.5f, -0.5f,  1.0f, 0.0f, 0.0f,	0.5f,
+	-0.5f,  0.5f, -0.5f,  1.0f, 0.0f, 0.0f,	0.5f,
+	-0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 0.0f,	0.5f,
+
+	-0.5f, -0.5f,  0.5f,  0.0f, 1.0f, 0.0f,	0.5f,
+	 0.5f, -0.5f,  0.5f,  0.0f, 1.0f, 0.0f,	0.5f,
+	 0.5f,  0.5f,  0.5f,  0.0f, 1.0f, 0.0f,	0.5f,
+	 0.5f,  0.5f,  0.5f,  0.0f, 1.0f, 0.0f,	0.5f,
+	-0.5f,  0.5f,  0.5f,  0.0f, 1.0f, 0.0f,	0.5f,
+	-0.5f, -0.5f,  0.5f,  0.0f, 1.0f, 0.0f,	0.5f,
+
+	-0.5f,  0.5f,  0.5f,  0.0f, 0.0f, 1.f,	0.5f,
+	-0.5f,  0.5f, -0.5f,  0.0f, 0.0f, 1.f,	0.5f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f, 1.f,	0.5f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f, 1.f,	0.5f,
+	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 1.f,	0.5f,
+	-0.5f,  0.5f,  0.5f,  0.0f, 0.0f, 1.f,	0.5f,
+
+	 0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 0.f,	0.5f,
+	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 0.f,	0.5f,
+	 0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 0.f,	0.5f,
+	 0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 0.f,	0.5f,
+	 0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 0.f,	0.5f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 0.f,	0.5f,
+
+	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 1.f,	0.5f,
+	 0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 1.f,	0.5f,
+	 0.5f, -0.5f,  0.5f,  0.0f, 1.0f, 1.f,	0.5f,
+	 0.5f, -0.5f,  0.5f,  0.0f, 1.0f, 1.f,	0.5f,
+	-0.5f, -0.5f,  0.5f,  0.0f, 1.0f, 1.f,	0.5f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 1.f,	0.5f,
+
+	-0.5f,  0.5f, -0.5f,  1.0f, 0.0f, 1.f,	0.5f,
+	 0.5f,  0.5f, -0.5f,  1.0f, 0.0f, 1.f,	0.5f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 1.f,	0.5f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 1.f,	0.5f,
+	-0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 1.f,	0.5f,
+	-0.5f,  0.5f, -0.5f,  1.0f, 0.0f, 1.f,	0.5f,
 };
 
 float quadVertices[] = {
@@ -104,16 +152,14 @@ void processKeyboard(GLFWwindow* window)
 		camX += .01f;
 }
 
-void renderScene(unsigned int* VAO, unsigned int shaderProgram,
-	glm::mat4 view, glm::mat4 projection,
-	std::vector<glm::vec3>& positions)
+void renderScene(unsigned int* VAO, unsigned int shaderProgram, glm::mat4 view, glm::mat4 projection, std::vector<glm::vec3>& positions)
 {
 	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
 	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 
 	glm::mat4 model = glm::mat4(1.f);
 
-	// cubes (不透明)
+	// cubes
 	glBindVertexArray(VAO[0]);
 	model = glm::translate(model, glm::vec3(-1.0f, 0.0f, -1.0f));
 	model = glm::rotate(model, (float)glfwGetTime() / 2.f, glm::vec3(0.0f, 1.0f, .0f));
@@ -128,7 +174,7 @@ void renderScene(unsigned int* VAO, unsigned int shaderProgram,
 	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 
-	// floor (不透明)
+	// floor 
 	glBindVertexArray(VAO[1]);
 	model = glm::mat4(1.0f);
 	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
@@ -143,6 +189,14 @@ void renderScene(unsigned int* VAO, unsigned int shaderProgram,
 		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 	}
+
+	glBindVertexArray(VAO[3]);
+	model = glm::translate(model, glm::vec3(0.8f, 0.0f, -1.0f));
+	model = glm::rotate(model, (float)glfwGetTime() / 2.f, glm::vec3(0.0f, 1.0f, .0f));
+	model = glm::scale(model, glm::vec3(.5, .5, .5));
+	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
+	glDrawArrays(GL_TRIANGLES, 0, 3);
+
 }
 
 int main(int argc, char** argv)
@@ -157,16 +211,14 @@ int main(int argc, char** argv)
 	glEnable(GL_DEBUG_OUTPUT);
 	glDebugMessageCallback(DebugCallback, 0);
 
-	// Compile shaders
-	unsigned int renderShader = CompileShader("depthpeeling.vert", "depthpeeling.frag");
+	unsigned int renderShader = CompileShader("peel.vert", "peel.frag");
 	unsigned int blendShader = CompileShader("blend.vert", "blend.frag");
 	unsigned int finalShader = CompileShader("final.vert", "final.frag");
 
-	// Setup geometry VAOs
-	unsigned int VAO[3];
-	glGenVertexArrays(3, VAO);
-	unsigned int VBO[3];
-	glGenBuffers(3, VBO);
+	unsigned int VAO[4];
+	glGenVertexArrays(4, VAO);
+	unsigned int VBO[4];
+	glGenBuffers(4, VBO);
 
 	// cube
 	glBindVertexArray(VAO[0]);
@@ -176,7 +228,6 @@ int main(int argc, char** argv)
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
-
 	// plane
 	glBindVertexArray(VAO[1]);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
@@ -185,7 +236,6 @@ int main(int argc, char** argv)
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
-
 	// transparent
 	glBindVertexArray(VAO[2]);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO[2]);
@@ -194,8 +244,15 @@ int main(int argc, char** argv)
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
-
-	// quad for blending
+	// transparent cube
+	glBindVertexArray(VAO[3]);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO[3]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(transparentCubeVertices), transparentCubeVertices, GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+	// quad
 	unsigned int quadVAO, quadVBO;
 	glGenVertexArrays(1, &quadVAO);
 	glGenBuffers(1, &quadVBO);
@@ -206,10 +263,11 @@ int main(int argc, char** argv)
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
 	glEnableVertexAttribArray(1);
-
+	//解绑
 	glBindVertexArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-	// FBO_0: 累积缓冲 (最终结果)
+	// FBO_0:用于合成最终结果
 	unsigned int FBO_0;
 	glGenFramebuffers(1, &FBO_0);
 	unsigned int colorTex_0, depthTex_0;
@@ -233,10 +291,8 @@ int main(int argc, char** argv)
 	glBindFramebuffer(GL_FRAMEBUFFER, FBO_0);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTex_0, 0);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthTex_0, 0);
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		std::cout << "FBO_0 not complete!" << std::endl;
 
-	// FBO_1: Ping-pong 缓冲 (临时渲染)
+	// FBO_1:用来临时存剥离出的层
 	unsigned int FBO_1;
 	glGenFramebuffers(1, &FBO_1);
 	unsigned int colorTex_1, depthTex_1;
@@ -260,8 +316,6 @@ int main(int argc, char** argv)
 	glBindFramebuffer(GL_FRAMEBUFFER, FBO_1);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTex_1, 0);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthTex_1, 0);
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		std::cout << "FBO_1 not complete!" << std::endl;
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -272,13 +326,13 @@ int main(int argc, char** argv)
 	positions.push_back(glm::vec3(-.5f, 0, 0.5f));
 	positions.push_back(glm::vec3(0, 0, 1.5f));
 
-	// Query for early termination
+	// Use query to early termination
 	GLuint queryId;
 	glGenQueries(1, &queryId);
 
 	while (!glfwWindowShouldClose(window))
 	{
-		processKeyboard(window);
+		
 
 		glm::mat4 view = glm::mat4(1.f);
 		view = glm::translate(view, -glm::vec3(camX, 0.f, camZ));
@@ -286,7 +340,7 @@ int main(int argc, char** argv)
 		glm::mat4 projection = glm::mat4(1.f);
 		projection = glm::perspective(glm::radians(45.f), (float)800 / (float)600, .001f, 10.f);
 
-		// ========== 初始化阶段 ==========
+		// ========== Initial ==========
 		// FBO_0: alpha=1.0, depth=0.0
 		glBindFramebuffer(GL_FRAMEBUFFER, FBO_0);
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -301,31 +355,29 @@ int main(int argc, char** argv)
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-		// ========== 深度剥离循环 ==========
+		// ========== Peel loop ==========
 		int inputDepth = 0;  // 0 = depthTex_0, 1 = depthTex_1
 		int outputDepth = 1;
-		const int MAX_LAYERS = 10;
+		const int numPeels = 20;
 
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LESS);  // 使用标准深度测试
 		glDepthMask(GL_TRUE);
 
-		for (int layer = 0; layer < MAX_LAYERS; layer++)
+		for (int i = 0; i < numPeels; i++)
 		{
-			// 清空输出FBO (FBO_1)
-			glBindFramebuffer(GL_FRAMEBUFFER, FBO_1);
-			// 重新绑定输出深度纹理
-			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D,
-				outputDepth ? depthTex_1 : depthTex_0, 0);
 
-			glClearColor(0.0f, 0.0f, 0.0f, 0.0f);  // alpha = 0
-			glClearDepth(1.0f);  // 深度 = 1.0
+			// clear
+			glBindFramebuffer(GL_FRAMEBUFFER, FBO_1);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, outputDepth ? depthTex_1 : depthTex_0, 0);
+			glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+			glClearDepth(1.0f);  
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			// 开始查询
 			glBeginQuery(GL_SAMPLES_PASSED, queryId);
 
-			// 渲染场景，使用输入深度纹理进行剥离
+			
 			glUseProgram(renderShader);
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, inputDepth ? depthTex_1 : depthTex_0);
@@ -335,7 +387,6 @@ int main(int argc, char** argv)
 
 			glEndQuery(GL_SAMPLES_PASSED);
 
-			// 等待查询结果
 			GLint available = 0;
 			while (!available) {
 				glGetQueryObjectiv(queryId, GL_QUERY_RESULT_AVAILABLE, &available);
@@ -343,7 +394,7 @@ int main(int argc, char** argv)
 
 			GLuint sampleCount = 0;
 			glGetQueryObjectuiv(queryId, GL_QUERY_RESULT, &sampleCount);
-			std::cout << "Layer " << layer << " samples: " << sampleCount << std::endl;
+			std::cout << "Layer " << i << " samples: " << sampleCount << std::endl;
 
 			// ========== 混合当前层到 FBO_0 ==========
 			glBindFramebuffer(GL_FRAMEBUFFER, FBO_0);
@@ -351,6 +402,8 @@ int main(int argc, char** argv)
 			glDisable(GL_DEPTH_TEST);
 			glEnable(GL_BLEND);
 			glBlendFuncSeparate(GL_DST_ALPHA, GL_ONE, GL_ZERO, GL_ONE_MINUS_SRC_ALPHA);
+			//glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+			//glBlendFuncSeparate(GL_ONE_MINUS_DST_ALPHA, GL_ONE, GL_ONE_MINUS_DST_ALPHA, GL_ONE);
 
 			glUseProgram(blendShader);
 			glActiveTexture(GL_TEXTURE0);
@@ -364,18 +417,18 @@ int main(int argc, char** argv)
 			glDepthMask(GL_TRUE);
 			glEnable(GL_DEPTH_TEST);
 
-			// 交换输入输出
+			// swap depthTex
 			inputDepth = (inputDepth + 1) % 2;
 			outputDepth = (outputDepth + 1) % 2;
 
-			// 提前终止
+			// terminate if no samples passed
 			if (sampleCount <= 0) {
-				std::cout << "Early termination at layer " << layer << std::endl;
+				std::cout << "Early termination at layer " << i << std::endl;
 				break;
 			}
 		}
 
-		// ========== 最终合成到屏幕 ==========
+		// ========== composite to screen ==========
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -392,11 +445,13 @@ int main(int argc, char** argv)
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
 		glfwSwapBuffers(window);
+
 		glfwPollEvents();
+		processKeyboard(window);
 	}
 
-	glDeleteVertexArrays(3, VAO);
-	glDeleteBuffers(3, VBO);
+	glDeleteVertexArrays(4, VAO);
+	glDeleteBuffers(4, VBO);
 	glDeleteVertexArrays(1, &quadVAO);
 	glDeleteBuffers(1, &quadVBO);
 	glDeleteFramebuffers(1, &FBO_0);
