@@ -34,28 +34,34 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="triangle.frag">
-      <Filter>源文件</Filter>
-    </None>
-    <None Include="triangle.vert">
-      <Filter>源文件</Filter>
-    </None>
     <None Include="opaque.vert">
       <Filter>源文件</Filter>
     </None>
     <None Include="opaque.frag">
       <Filter>源文件</Filter>
     </None>
-    <None Include="transparent.vert">
+    <None Include="compose.frag">
       <Filter>源文件</Filter>
     </None>
-    <None Include="abuffer_build.frag">
+    <None Include="compose.vert">
       <Filter>源文件</Filter>
     </None>
-    <None Include="quad.vert">
+    <None Include="debug.frag">
       <Filter>源文件</Filter>
     </None>
-    <None Include="abuffer_composite.frag">
+    <None Include="debug.vert">
+      <Filter>源文件</Filter>
+    </None>
+    <None Include="ppllBuild.frag">
+      <Filter>源文件</Filter>
+    </None>
+    <None Include="ppllBuild.vert">
+      <Filter>源文件</Filter>
+    </None>
+    <None Include="ppllResolve.frag">
+      <Filter>源文件</Filter>
+    </None>
+    <None Include="ppllResolve.vert">
       <Filter>源文件</Filter>
     </None>
   </ItemGroup>

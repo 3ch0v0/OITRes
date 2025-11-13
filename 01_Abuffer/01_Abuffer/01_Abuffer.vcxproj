@@ -141,14 +141,16 @@
     <ClInclude Include="..\..\include\Shader.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="abuffer_build.frag" />
-    <None Include="abuffer_composite.frag" />
+    <None Include="compose.frag" />
+    <None Include="compose.vert" />
+    <None Include="debug.frag" />
+    <None Include="debug.vert" />
     <None Include="opaque.frag" />
     <None Include="opaque.vert" />
-    <None Include="quad.vert" />
-    <None Include="transparent.vert" />
-    <None Include="triangle.frag" />
-    <None Include="triangle.vert" />
+    <None Include="ppllBuild.frag" />
+    <None Include="ppllBuild.vert" />
+    <None Include="ppllResolve.frag" />
+    <None Include="ppllResolve.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
