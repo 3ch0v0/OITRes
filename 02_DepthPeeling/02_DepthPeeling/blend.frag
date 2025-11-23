@@ -9,5 +9,6 @@ void main()
 {
     
     // glBlendFuncSeparate(GL_DST_ALPHA, GL_ONE, GL_ZERO, GL_ONE_MINUS_SRC_ALPHA)
-    FragColor = texture(colorTexture, TexCoords);
+    vec4 color = texture(colorTexture, TexCoords);
+    FragColor = vec4(color.rgb * color.a, color.a);
 }
