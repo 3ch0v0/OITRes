@@ -19,7 +19,7 @@ layout(std430, binding = 1) buffer FragmentList
 	ListNode nodes[];
 };
 
-layout(binding = 0, offset=0) uniform atomic_uint nodeCounter;
+layout(binding = 2, offset=0) uniform atomic_uint nodeCounter;
 
 int maxFragments = 100;
 
@@ -31,7 +31,7 @@ void main()
 	//if there is no fragments, discard
 	if (nodeIndex == 0xFFFFFFFFu)
 	{
-		//discard;
+		discard;
 	}
 
 	vec4 fragments[100];
@@ -51,7 +51,7 @@ void main()
 		discard;
 	}
 
-	//======sort,from back to front
+	//======sort,from back to front=======
 	for (int i = 1; i < count; i++) 
 	{
         vec4 tempColor = fragments[i];
@@ -70,7 +70,7 @@ void main()
         depths[j + 1] = tempDepth;
     }
 
-	//=======blend
+	//=======blend==================
 	//color.rgb = src.rgb * src.a +(1 - src.a)*dst.rgb 
     // color.a = src.a +(1 - src.a)*dst.a 
 	vec4 accumColor = vec4(0.0);
@@ -83,5 +83,5 @@ void main()
     }
     
     fragColor = accumColor;
-	//fragColor = vec4(accumColor.rgb * accumColor.a, accumColor.a);
+
 }

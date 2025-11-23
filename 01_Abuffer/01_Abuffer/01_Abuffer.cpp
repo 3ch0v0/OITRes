@@ -383,6 +383,8 @@ int main(int argc, char** argv)
 
 	while (!glfwWindowShouldClose(window))
 	{
+		glDepthMask(GL_TRUE);
+		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 		static const GLfloat bgd[] = { .02f, .5f, .75f, 1.f };
 		glClearBufferfv(GL_COLOR, 0, bgd);
 		glClear(GL_DEPTH_BUFFER_BIT);
@@ -409,18 +411,18 @@ int main(int argc, char** argv)
 		//glBindTexture(GL_TEXTURE_2D, 0);
 
 		// ========== Pass 2: buil ppll buffer ==========
-		//depth test: less; depth writting: false
+		//depth test: true; depth writting: false
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		clearPPLLBUffers(headPtrTex, counterBuffer);
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LEQUAL);
 		glDepthMask(GL_FALSE);
-		//glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-		//glDisable(GL_BLEND);
+		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+		glDisable(GL_BLEND);
 
+		clearPPLLBUffers(headPtrTex, counterBuffer);
 		glBindImageTexture(0, headPtrTex, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32UI);
-		glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 0, counterBuffer);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, fragListBuffer);
+		glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 2, counterBuffer);
 
 		glUseProgram(ppllBuildShader);
 		renderTransparentScene(VAO, ppllBuildShader, view, projection, positions);
@@ -428,8 +430,12 @@ int main(int argc, char** argv)
 
 		//========== Pass 3: rennder to ppllBuffer ==========
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		//--change start
 		glDepthMask(GL_TRUE);
 		glEnable(GL_DEPTH_TEST);
+		//glDepthMask(GL_FALSE);
+		//glDisable(GL_DEPTH_TEST);
+		//--change end
 		glDepthFunc(GL_LEQUAL);
 		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 		glEnable(GL_BLEND);
