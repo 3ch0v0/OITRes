@@ -136,13 +136,18 @@
     <ClCompile Include="03_WBOIT.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\include\camera.h" />
+    <ClInclude Include="..\..\include\Common.h" />
     <ClInclude Include="..\..\include\error.h" />
     <ClInclude Include="..\..\include\file.h" />
+    <ClInclude Include="..\..\include\Model.h" />
     <ClInclude Include="..\..\include\Shader.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="compose.frag" />
     <None Include="compose.vert" />
+    <None Include="debug.frag" />
+    <None Include="debug.vert" />
     <None Include="wboit.frag" />
     <None Include="wboit.vert" />
     <None Include="opaque.frag" />

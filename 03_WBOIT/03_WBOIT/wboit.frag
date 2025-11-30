@@ -27,7 +27,8 @@ float CalculateDirectionalIllumination(vec3 Nnor, vec3 Nto_light, vec3 NrefLight
 void main()
 {
     vec3 Nnor = normalize(nor);
-    if (!gl_FrontFacing) {
+    if (!gl_FrontFacing) 
+    {
         Nnor = -Nnor;
     }
 

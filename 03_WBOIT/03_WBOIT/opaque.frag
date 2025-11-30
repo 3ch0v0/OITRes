@@ -15,7 +15,7 @@ uniform vec3 camPos;
 
 float CalculateDirectionalIllumination(vec3 Nnor, vec3 Nto_light, vec3 NrefLight, vec3 NcamDirection)
 {
-	float ambient = 0.1f;
+	float ambient = 0.15f;
 	
 	float diffuse = max(dot(Nnor,Nto_light),0);
 

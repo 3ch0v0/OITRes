@@ -28,7 +28,7 @@ float camY = 0.0f;
 const unsigned int windowWidth = 800;
 const unsigned int windowHeight = 600;
 
-//light direction variable here
+//light
 glm::vec3 lightDirection = glm::vec3(0.2f, -.81f, .31f);
 glm::vec3 lightPos = glm::vec3(2.f, 6.f, 7.f);
 glm::vec3 lightColor = glm::vec3(0.8f, 0.8f, 0.8f);
@@ -344,20 +344,7 @@ void setupWBOITFramebuffer(unsigned int& wboitFBO, unsigned int& colorTex, unsig
 void renderOpaqueScene(unsigned int* VAO, unsigned int shaderProgram, glm::mat4 view, glm::mat4 projection,Model opaqueObj, glm::mat4 projectedLightSpaceMatrix)
 {
 	
-	
-	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
-	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-
-	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projectedLightSpaceMatrix"), 1, GL_FALSE, glm::value_ptr(projectedLightSpaceMatrix));
-	//light direction
-	glUniform3f(glGetUniformLocation(shaderProgram, "lightDirection"), lightDirection.x, lightDirection.y, lightDirection.z);
-	//light color
-	glUniform3f(glGetUniformLocation(shaderProgram, "directionalLightColor"), lightColor.x, lightColor.y, lightColor.z);
-
-	//camera pos
-	glUniform3f(glGetUniformLocation(shaderProgram, "camPos"), Camera.Position.x, Camera.Position.y, Camera.Position.z);
-	//light Pos
-	glUniform3f(glGetUniformLocation(shaderProgram, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
+	SetShaderScene(shaderProgram, view, projection, projectedLightSpaceMatrix,Camera.Position, lightDirection, lightColor, lightPos);
 
 	glm::mat4 model = glm::mat4(1.f);
 
@@ -367,14 +354,14 @@ void renderOpaqueScene(unsigned int* VAO, unsigned int shaderProgram, glm::mat4 
 	model = glm::rotate(model, (float)glfwGetTime() / 2.f, glm::vec3(0.0f, 1.0f, .0f));
 	model = glm::scale(model, glm::vec3(.5, .5, .5));
 	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
-	glDrawArrays(GL_TRIANGLES, 0, 36);
+	//glDrawArrays(GL_TRIANGLES, 0, 36);
 
 	model = glm::mat4(1.0f);
 	model = glm::translate(model, glm::vec3(1.0f, 0.0f, -1.0f));
 	model = glm::rotate(model, (float)glfwGetTime() / -2.f, glm::vec3(0.0f, 1.0f, .0f));
 	model = glm::scale(model, glm::vec3(.5, .5, .5));
 	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
-	glDrawArrays(GL_TRIANGLES, 0, 36);
+	//glDrawArrays(GL_TRIANGLES, 0, 36);
 
 	// floor 
 	glBindVertexArray(VAO[1]);
@@ -384,8 +371,6 @@ void renderOpaqueScene(unsigned int* VAO, unsigned int shaderProgram, glm::mat4 
 
 	if (opaqueObj.vertexCount > 0)
 	{
-		//glUniformMatrix4fv(glGetUniformLocation(opaqueShader, "view"), 1, GL_FALSE, glm::value_ptr(view));
-		//glUniformMatrix4fv(glGetUniformLocation(opaqueShader, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 		glm::mat4 model = glm::mat4(1.0f);
 		model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));
 		//model = glm::rotate(model, (float)glfwGetTime() / 2.f, glm::vec3(0.0f, 1.0f, .0f));
@@ -400,19 +385,7 @@ void renderOpaqueScene(unsigned int* VAO, unsigned int shaderProgram, glm::mat4 
 
 void renderTransparentScene(unsigned int* VAO, unsigned int shaderProgram, glm::mat4 view, glm::mat4 projection, std::vector<glm::vec3>& positions, Model transObj, glm::mat4 projectedLightSpaceMatrix)
 {
-	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
-	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-
-	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projectedLightSpaceMatrix"), 1, GL_FALSE, glm::value_ptr(projectedLightSpaceMatrix));
-	//light direction
-	glUniform3f(glGetUniformLocation(shaderProgram, "lightDirection"), lightDirection.x, lightDirection.y, lightDirection.z);
-	//light color
-	glUniform3f(glGetUniformLocation(shaderProgram, "directionalLightColor"), lightColor.x, lightColor.y, lightColor.z);
-
-	//camera pos
-	glUniform3f(glGetUniformLocation(shaderProgram, "camPos"), Camera.Position.x, Camera.Position.y, Camera.Position.z);
-	//light Pos
-	glUniform3f(glGetUniformLocation(shaderProgram, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
+	SetShaderScene(shaderProgram, view, projection, projectedLightSpaceMatrix, Camera.Position, lightDirection, lightColor, lightPos);
 
 	glm::mat4 model = glm::mat4(1.f);
 
@@ -423,7 +396,7 @@ void renderTransparentScene(unsigned int* VAO, unsigned int shaderProgram, glm::
 		model = glm::mat4(1.0f);
 		model = glm::translate(model, positions[i]);
 		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+		//glDrawArrays(GL_TRIANGLES, 0, 3);
 	}
 
 	// transparent cube
@@ -433,20 +406,27 @@ void renderTransparentScene(unsigned int* VAO, unsigned int shaderProgram, glm::
 	model = glm::rotate(model, (float)glfwGetTime() / 2.f, glm::vec3(0.0f, 1.0f, .0f));
 	model = glm::scale(model, glm::vec3(.5, .5, .5));
 	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
-	glDrawArrays(GL_TRIANGLES, 0, 36);
+	//glDrawArrays(GL_TRIANGLES, 0, 36);
 
-	if (transObj.vertexCount > 0)
+	for(int i=0;i<=1;i++)
 	{
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.f));
-		//model = glm::rotate(model, (float)glfwGetTime() / 2.f, glm::vec3(0.0f, 1.0f, .0f));
-		model = glm::scale(model, glm::vec3(0.5f));
+		for (int j = 0; j <= 0; j++)
+		{
+			if (transObj.vertexCount > 0)
+			{
+				glm::mat4 model = glm::mat4(1.0f);
+				model = glm::translate(model, glm::vec3(0.0f, -1.0f+j, -1.25f*i));
+				//model = glm::rotate(model, (float)glfwGetTime() / 2.f, glm::vec3(0.0f, 1.0f, .0f));
+				model = glm::scale(model, glm::vec3(0.5f));
 
-		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
+				glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
 
-		glBindVertexArray(transObj.VAO);
-		glDrawArrays(GL_TRIANGLES, 0, transObj.vertexCount);
+				glBindVertexArray(transObj.VAO);
+				glDrawArrays(GL_TRIANGLES, 0, transObj.vertexCount);
+			}
+		}
 	}
+
 }
 
 int main(int argc, char** argv)
@@ -468,7 +448,7 @@ int main(int argc, char** argv)
 	//unsigned int debugShader = CompileShader("debug.vert", "debug.frag");
 
 	InitCamera(Camera);
-	cam_dist = 5.5f;
+	cam_dist = 7.f;
 	MoveAndOrientCamera(Camera, glm::vec3(0, 0, 0), cam_dist, 0.f, 0.f);
 
 	// setup VAO VBO
@@ -486,6 +466,7 @@ int main(int argc, char** argv)
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+	//trigles positions
 	std::vector<glm::vec3> positions;
 	positions.push_back(glm::vec3(0, 0, 2.f));
 	positions.push_back(glm::vec3(0.5f, 0, 0.f));
@@ -495,6 +476,7 @@ int main(int argc, char** argv)
 
 	Model TransObj = loadModel("../../resource/chess-set/source/ChessSetTransparent.obj", 0.5f);
 	Model OpaqueObj = loadModel("../../resource/chess-set/source/ChessSetOpaque.obj", 1.f);
+	Model ChessObj = loadModel("../../resource/chess-set/source/BoardOpaque.obj", 1.f);
 
 	double lastTime = glfwGetTime();
 	int nbFrames = 0;
@@ -528,6 +510,8 @@ int main(int argc, char** argv)
 
 		glUseProgram(opaqueShader);
 		renderOpaqueScene(VAO, opaqueShader, view, projection, OpaqueObj, projecedLightSpaceMatrix);
+		renderOpaqueScene(VAO, opaqueShader, view, projection, ChessObj, projecedLightSpaceMatrix);
+
 		
 
 		// ========== Pass 2: Render transparent obj to wboit buffer ==========
