@@ -85,7 +85,7 @@ float cubeVertices[] = {
 
 float planeVertices[] = {
 	// positions          // col			//SPECIFY ALPHA COORDINATE HERE
-	 5.0f, -0.5f,  5.0f,  1.0f, 1.0f, 1.f,	1.0f,
+	 5.0f, -0.5f,  5.0f,  1.0f, 1.0f, 1.f,	1.0f, 
 	-5.0f, -0.5f,  5.0f,  1.0f, 1.0f, 1.f,	1.0f,
 	-5.0f, -0.5f, -5.0f,  1.0f, 1.0f, 1.f,	1.0f,
 
@@ -349,7 +349,7 @@ void setupDepthPeelingFramebuffer(unsigned int& FBO_0, unsigned int& colorTex_0,
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthTex_1, 0);
 }
 
-void renderScene(unsigned int* VAO, unsigned int shaderProgram, glm::mat4 view, glm::mat4 projection, std::vector<glm::vec3>& positions, Model opaqueObj, Model transObj, glm::mat4 projectedLightSpaceMatrix)
+void renderScene(unsigned int* VAO, unsigned int shaderProgram, glm::mat4 view, glm::mat4 projection, std::vector<glm::vec3>& positions, Model boardObj, Model opaqueObj, Model transObj, glm::mat4 projectedLightSpaceMatrix)
 {
 	SetShaderScene(shaderProgram, view, projection, projectedLightSpaceMatrix, Camera.Position, lightDirection, lightColor, lightPos);
 
@@ -361,14 +361,14 @@ void renderScene(unsigned int* VAO, unsigned int shaderProgram, glm::mat4 view, 
 	model = glm::rotate(model, (float)glfwGetTime() / 2.f, glm::vec3(0.0f, 1.0f, .0f));
 	model = glm::scale(model, glm::vec3(.5, .5, .5));
 	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
-	glDrawArrays(GL_TRIANGLES, 0, 36);
+	//glDrawArrays(GL_TRIANGLES, 0, 36);
 
 	model = glm::mat4(1.0f);
 	model = glm::translate(model, glm::vec3(1.0f, 0.0f, -1.0f));
 	model = glm::rotate(model, (float)glfwGetTime() / -2.f, glm::vec3(0.0f, 1.0f, .0f));
 	model = glm::scale(model, glm::vec3(.5, .5, .5));
 	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
-	glDrawArrays(GL_TRIANGLES, 0, 36);
+	//glDrawArrays(GL_TRIANGLES, 0, 36);
 
 
 	// floor 
@@ -384,7 +384,7 @@ void renderScene(unsigned int* VAO, unsigned int shaderProgram, glm::mat4 view, 
 		model = glm::mat4(1.0f);
 		model = glm::translate(model, positions[i]);
 		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+		//glDrawArrays(GL_TRIANGLES, 0, 3);
 	}
 	// transparent cubes
 	glBindVertexArray(VAO[3]);
@@ -392,7 +392,7 @@ void renderScene(unsigned int* VAO, unsigned int shaderProgram, glm::mat4 view, 
 	model = glm::rotate(model, (float)glfwGetTime() / 2.f, glm::vec3(0.0f, 1.0f, .0f));
 	model = glm::scale(model, glm::vec3(.5, .5, .5));
 	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
-	glDrawArrays(GL_TRIANGLES, 0, 36);
+	//glDrawArrays(GL_TRIANGLES, 0, 36);
 
 	if (opaqueObj.vertexCount > 0)
 	{
@@ -406,19 +406,39 @@ void renderScene(unsigned int* VAO, unsigned int shaderProgram, glm::mat4 view, 
 		glBindVertexArray(opaqueObj.VAO);
 		glDrawArrays(GL_TRIANGLES, 0, opaqueObj.vertexCount);
 	}
-
-	if (transObj.vertexCount > 0)
+	if (boardObj.vertexCount > 0)
 	{
 		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.f));
+		model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));
 		//model = glm::rotate(model, (float)glfwGetTime() / 2.f, glm::vec3(0.0f, 1.0f, .0f));
 		model = glm::scale(model, glm::vec3(0.5f));
 
 		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
 
-		glBindVertexArray(transObj.VAO);
-		glDrawArrays(GL_TRIANGLES, 0, transObj.vertexCount);
+		glBindVertexArray(boardObj.VAO);
+		glDrawArrays(GL_TRIANGLES, 0, boardObj.vertexCount);
 	}
+
+
+	for (int i = 0; i <= 1; i++)
+	{
+		for (int j = 0; j <= 0; j++)
+		{ 
+			if (transObj.vertexCount > 0)
+			{
+			glm::mat4 model = glm::mat4(1.0f);
+			model = glm::translate(model, glm::vec3(0.0f, -1.0f+j, -(i * 1.25f)));
+			//model = glm::rotate(model, (float)glfwGetTime() / 2.f, glm::vec3(0.0f, 1.0f, .0f));
+			model = glm::scale(model, glm::vec3(0.5f));
+
+			glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
+
+			glBindVertexArray(transObj.VAO);
+			glDrawArrays(GL_TRIANGLES, 0, transObj.vertexCount);
+			}
+		}
+	}
+
 
 }
 
@@ -441,7 +461,7 @@ int main(int argc, char** argv)
 
 	//camera
 	InitCamera(Camera);
-	cam_dist = 5.5f;
+	cam_dist = 7.f;
 	MoveAndOrientCamera(Camera, glm::vec3(0, 0, 0), cam_dist, 0.f, 0.f);
 
 	// setup VAO VBO
@@ -472,6 +492,8 @@ int main(int argc, char** argv)
 
 	Model TransObj = loadModel("../../resource/chess-set/source/ChessSetTransparent.obj", 0.5f);
 	Model OpaqueObj = loadModel("../../resource/chess-set/source/ChessSetOpaque.obj", 1.f);
+	Model BoardObj = loadModel("../../resource/chess-set/source/BoardOpaque.obj", 1.f);
+
 
 	// Use query to early termination
 	GLuint queryId;
@@ -485,7 +507,7 @@ int main(int argc, char** argv)
 		view = glm::translate(view, -glm::vec3(camX, camY, camZ));
 		//P
 		glm::mat4 projection = glm::mat4(1.f);
-		projection = glm::perspective(glm::radians(45.f), (float)windowWidth / (float)windowHeight, .001f, 10.f);
+		projection = glm::perspective(glm::radians(45.f), (float)windowWidth / (float)windowHeight, .001f, 100.f);
 		//light matrix
 		float near_plane = 1.0f, far_plane = 70.5f;
 		glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
@@ -512,7 +534,7 @@ int main(int argc, char** argv)
 	
 		int inputDepth = 0;  // 0 = depthTex_0, 1 = depthTex_1
 		int outputDepth = 1;
-		const int numPeels = 8;
+		const int numPeels = 16;
 
 		int currDepth = 0;  // 0 = depthTex_0, 1 = depthTex_1
 		int prevDepth = 1;
@@ -539,7 +561,7 @@ int main(int argc, char** argv)
 			glBindTexture(GL_TEXTURE_2D, inputDepth ? depthTex_1 : depthTex_0);
 			glUniform1i(glGetUniformLocation(peelShader, "depthTexture"), 0);
 
-			renderScene(VAO, peelShader, view, projection, positions, OpaqueObj, TransObj, projecedLightSpaceMatrix);
+			renderScene(VAO, peelShader, view, projection, positions, BoardObj, OpaqueObj, TransObj, projecedLightSpaceMatrix);
 
 			glEndQuery(GL_SAMPLES_PASSED);
 
