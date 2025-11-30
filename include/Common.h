@@ -3,7 +3,7 @@
 #include <GLFW/glfw3.h> 
 
 
-void showFPS(GLFWwindow* window, std::string windowName = " ")
+inline void showFPS(GLFWwindow* window, std::string windowName = " ")
 {
     static double lastTime = glfwGetTime();
     static int nbFrames = 0;
