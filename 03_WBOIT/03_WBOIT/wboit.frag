@@ -5,17 +5,20 @@ layout (location = 1) out float accumAlpha;
 
 in vec4 col;
 in vec3 nor;
+in vec2 texCoords;
 in vec3 FragPosWorldSpace;
 in float fragDepth;
 
+uniform sampler2D mainTex;
 uniform vec3 lightDirection;
 uniform vec3 lightPos;
 uniform vec3 directionalLightColor;
+
 uniform vec3 camPos;
 
 float CalculateDirectionalIllumination(vec3 Nnor, vec3 Nto_light, vec3 NrefLight, vec3 NcamDirection)
 {
-	float ambient = 0.3f;
+	float ambient = 0.5f;
 	
 	float diffuse = max(dot(Nnor,Nto_light),0);
 	
@@ -26,6 +29,7 @@ float CalculateDirectionalIllumination(vec3 Nnor, vec3 Nto_light, vec3 NrefLight
 
 void main()
 {
+    vec4 texColor = texture(mainTex, texCoords);
     vec3 Nnor = normalize(nor);
     if (!gl_FrontFacing) 
     {
@@ -48,8 +52,8 @@ void main()
 
     //col.rgb *= lightContribution;
     float weight = max(min(1.0, max(max(col.r, col.g), col.b) * col.a), col.a) * clamp(0.03 / (1e-5 + pow(fragDepth / 200, 4.0)), 1e-2, 3e3);
-    
-    accumColor =vec4(col.rgb * col.a * lightContribution, col.a)* weight;
+    weight = min(weight, 1000.0);
+    accumColor =vec4(col.rgb * col.a * lightContribution * texColor.rgb, col.a)* weight;
     
     accumAlpha = col.a;
 }

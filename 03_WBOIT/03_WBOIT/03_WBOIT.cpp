@@ -17,6 +17,8 @@
 #include "camera.h"
 #include "Model.h"
 #include "Common.h"
+#include "texture.h"
+#include "Timer.h"
 
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "tiny_obj_loader.h"
@@ -28,8 +30,10 @@ float camY = 0.0f;
 const unsigned int windowWidth = 800;
 const unsigned int windowHeight = 600;
 
+bool screenshot_requested = false;
+
 //light
-glm::vec3 lightDirection = glm::vec3(0.2f, -.81f, .31f);
+glm::vec3 lightDirection = glm::vec3(-0.3f, -.51f, -.31f);
 glm::vec3 lightPos = glm::vec3(2.f, 6.f, 7.f);
 glm::vec3 lightColor = glm::vec3(0.8f, 0.8f, 0.8f);
 
@@ -233,6 +237,7 @@ void processKeyboard(GLFWwindow* window)
 		lightPos = Camera.Position;
 	}
 
+
 	if (cam_changed = true)
 	{
 		MoveAndOrientCamera(Camera, glm::vec3(0.f, 0.f, 0.f), cam_dist, x_offset, y_offset);
@@ -341,33 +346,23 @@ void setupWBOITFramebuffer(unsigned int& wboitFBO, unsigned int& colorTex, unsig
 		std::cout << "ERROR: WBOIT Framebuffer is not complete!" << std::endl;
 }
 
-void renderOpaqueScene(unsigned int* VAO, unsigned int shaderProgram, glm::mat4 view, glm::mat4 projection,Model opaqueObj, glm::mat4 projectedLightSpaceMatrix)
+void renderOpaqueScene(unsigned int* VAO, unsigned int shaderProgram, glm::mat4 view, glm::mat4 projection,Model opaqueObj, glm::mat4 projectedLightSpaceMatrix, unsigned int texture, unsigned int whiteTexture)
 {
 	
 	SetShaderScene(shaderProgram, view, projection, projectedLightSpaceMatrix,Camera.Position, lightDirection, lightColor, lightPos);
 
 	glm::mat4 model = glm::mat4(1.f);
 
-	// cubes
-	glBindVertexArray(VAO[0]);
-	model = glm::translate(model, glm::vec3(-1.0f, 0.0f, -1.0f));
-	model = glm::rotate(model, (float)glfwGetTime() / 2.f, glm::vec3(0.0f, 1.0f, .0f));
-	model = glm::scale(model, glm::vec3(.5, .5, .5));
-	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
-	//glDrawArrays(GL_TRIANGLES, 0, 36);
-
-	model = glm::mat4(1.0f);
-	model = glm::translate(model, glm::vec3(1.0f, 0.0f, -1.0f));
-	model = glm::rotate(model, (float)glfwGetTime() / -2.f, glm::vec3(0.0f, 1.0f, .0f));
-	model = glm::scale(model, glm::vec3(.5, .5, .5));
-	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
-	//glDrawArrays(GL_TRIANGLES, 0, 36);
-
-	// floor 
-	glBindVertexArray(VAO[1]);
-	model = glm::mat4(1.0f);
-	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
-	//glDrawArrays(GL_TRIANGLES, 0, 6);
+	glActiveTexture(GL_TEXTURE0);
+	if (texture > 0)
+	{
+		glBindTexture(GL_TEXTURE_2D, texture);
+	}
+	else
+	{
+		glBindTexture(GL_TEXTURE_2D, whiteTexture);
+	}
+	glUniform1i(glGetUniformLocation(shaderProgram, "mainTex"), 0);
 
 	if (opaqueObj.vertexCount > 0)
 	{
@@ -383,32 +378,24 @@ void renderOpaqueScene(unsigned int* VAO, unsigned int shaderProgram, glm::mat4 
 	}
 }
 
-void renderTransparentScene(unsigned int* VAO, unsigned int shaderProgram, glm::mat4 view, glm::mat4 projection, std::vector<glm::vec3>& positions, Model transObj, glm::mat4 projectedLightSpaceMatrix)
+void renderTransparentScene(unsigned int* VAO, unsigned int shaderProgram, glm::mat4 view, glm::mat4 projection, std::vector<glm::vec3>& positions, Model transObj, glm::mat4 projectedLightSpaceMatrix, unsigned int texture, unsigned int whiteTexture)
 {
 	SetShaderScene(shaderProgram, view, projection, projectedLightSpaceMatrix, Camera.Position, lightDirection, lightColor, lightPos);
 
 	glm::mat4 model = glm::mat4(1.f);
-
-	// transparent triangles
-	glBindVertexArray(VAO[2]);
-	for (size_t i = 0; i < positions.size(); i++)
+	model = glm::scale(model, glm::vec3(0.5f));
+	glActiveTexture(GL_TEXTURE1);
+	if (texture > 0)
 	{
-		model = glm::mat4(1.0f);
-		model = glm::translate(model, positions[i]);
-		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
-		//glDrawArrays(GL_TRIANGLES, 0, 3);
+		glBindTexture(GL_TEXTURE_2D, texture);
 	}
+	else
+	{
+		glBindTexture(GL_TEXTURE_2D, whiteTexture);
+	}
+	glUniform1i(glGetUniformLocation(shaderProgram, "mainTex"), 1);
 
-	// transparent cube
-	glBindVertexArray(VAO[3]);
-	model = glm::mat4(1.0f);
-	model = glm::translate(model, glm::vec3(0.8f, 0.0f, 1.0f));
-	model = glm::rotate(model, (float)glfwGetTime() / 2.f, glm::vec3(0.0f, 1.0f, .0f));
-	model = glm::scale(model, glm::vec3(.5, .5, .5));
-	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
-	//glDrawArrays(GL_TRIANGLES, 0, 36);
-
-	for(int i=0;i<=1;i++)
+	for(int i=0;i<=0;i++)
 	{
 		for (int j = 0; j <= 0; j++)
 		{
@@ -434,6 +421,7 @@ int main(int argc, char** argv)
 	glfwInit();
 	GLFWwindow* window = glfwCreateWindow(windowWidth, windowHeight, "WBOIT", NULL, NULL);
 	glfwMakeContextCurrent(window);
+	glfwSwapInterval(0);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
 	gl3wInit();
@@ -448,7 +436,9 @@ int main(int argc, char** argv)
 	//unsigned int debugShader = CompileShader("debug.vert", "debug.frag");
 
 	InitCamera(Camera);
-	cam_dist = 7.f;
+	Camera.Yaw = 45.f;
+	Camera.Pitch = 2.f;
+	cam_dist = 6.f;
 	MoveAndOrientCamera(Camera, glm::vec3(0, 0, 0), cam_dist, 0.f, 0.f);
 
 	// setup VAO VBO
@@ -474,22 +464,31 @@ int main(int argc, char** argv)
 	positions.push_back(glm::vec3(-.5f, 0, 0.5f));
 	positions.push_back(glm::vec3(0, 0, 1.5f));
 
-	Model TransObj = loadModel("../../resource/chess-set/source/ChessSetTransparent.obj", 0.5f);
-	Model OpaqueObj = loadModel("../../resource/chess-set/source/ChessSetOpaque.obj", 1.f);
-	Model ChessObj = loadModel("../../resource/chess-set/source/BoardOpaque.obj", 1.f);
+	//Model TransObj = loadModel("../../resource/chess-set/source/ChessSetTransparent.obj", 0.5f);
+	//Model OpaqueObj = loadModel("../../resource/chess-set/source/ChessSetOpaque.obj", 1.f);
+	//Model BoardObj = loadModel("../../resource/chess-set/source/BoardOpaque.obj", 1.f);
 
-	double lastTime = glfwGetTime();
-	int nbFrames = 0;
+	//Model DragonObj = loadModel("../../resource/dragon.obj", 0.5f);
+	Model MachineObj = loadModel("../../resource/machine2.obj", 0.2f);
+
+	//GLuint BoardTex = setup_texture("../../resource/chess-set/textures/ChessboardComplete.bmp");
+	//GLuint ChessTex = setup_texture("../../resource/chess-set/textures/ChessPiece.png");
+	GLuint whiteTex = setup_white_texture();
+
+	//InitTimer();
+	GpuTimer timer;
 
 	while (!glfwWindowShouldClose(window))
 	{
+		timer.Start();
+		//StartTiming();
 		static const GLfloat bgd[] = { .02f, .5f, .75f, 1.f };
 		glClearBufferfv(GL_COLOR, 0, bgd);
 		glClear(GL_DEPTH_BUFFER_BIT);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 		glm::mat4 view = glm::mat4(1.f);
-		//Camera.Position += glm::vec3(camX, camY, camZ);
+		Camera.Position += glm::vec3(camX, camY, camZ);
 		view = glm::lookAt(Camera.Position, Camera.Position + Camera.Front, Camera.Up);
 		view = glm::translate(view, -glm::vec3(camX, camY, camZ));
 
@@ -501,6 +500,7 @@ int main(int argc, char** argv)
 		glm::mat4 lightView = glm::lookAt(lightPos, lightPos + lightDirection, glm::vec3(0.f, 1.f, 0.f));
 		glm::mat4 projecedLightSpaceMatrix = lightProjection * lightView;
 
+		
 		// ========== Pass 1: Render opaque obj to framebuffer0 ==========
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LESS);
@@ -509,8 +509,8 @@ int main(int argc, char** argv)
 
 
 		glUseProgram(opaqueShader);
-		renderOpaqueScene(VAO, opaqueShader, view, projection, OpaqueObj, projecedLightSpaceMatrix);
-		renderOpaqueScene(VAO, opaqueShader, view, projection, ChessObj, projecedLightSpaceMatrix);
+		//renderOpaqueScene(VAO, opaqueShader, view, projection, OpaqueObj, projecedLightSpaceMatrix, ChessTex, whiteTex);
+		//renderOpaqueScene(VAO, opaqueShader, view, projection, BoardObj, projecedLightSpaceMatrix, BoardTex, whiteTex);
 
 		
 
@@ -539,7 +539,9 @@ int main(int argc, char** argv)
 		glBindFramebuffer(GL_FRAMEBUFFER, wboitFBO);
 
 		glUseProgram(wboitShader);
-		renderTransparentScene(VAO, wboitShader, view, projection, positions, TransObj, projecedLightSpaceMatrix);
+		//renderTransparentScene(VAO, wboitShader, view, projection, positions, TransObj, projecedLightSpaceMatrix, ChessTex, whiteTex);
+		//renderTransparentScene(VAO, wboitShader, view, projection, positions, DragonObj, projecedLightSpaceMatrix,0,whiteTex);
+		renderTransparentScene(VAO, wboitShader, view, projection, positions, MachineObj, projecedLightSpaceMatrix,0,whiteTex);
 		//---- render loaded transparent model
 		
 		//----render loaded transparent model
@@ -567,10 +569,11 @@ int main(int argc, char** argv)
 		glDisable(GL_BLEND);
 		glEnable(GL_DEPTH_TEST);
 
+		//EndTimingAndDisplay(window," WBOIT ");
+		timer.StopAndDisplay(window, "WBOIT");
 		glfwSwapBuffers(window);
 
-		showFPS(window, "WBOIT");
-
+		
 		glfwPollEvents();
 		processKeyboard(window);
 	}

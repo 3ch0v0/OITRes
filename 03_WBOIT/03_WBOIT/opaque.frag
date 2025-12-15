@@ -4,9 +4,11 @@ layout (location = 0) out vec4 fColor;
 
 in vec4 col;
 in vec3 nor;
+in vec2 texCoords;
 in vec3 FragPosWorldSpace;
 in vec4 FragPosProjectedLightSpace;
 
+uniform sampler2D mainTex;
 uniform vec3 lightDirection;
 uniform vec3 lightPos;
 uniform vec3 directionalLightColor;
@@ -15,7 +17,7 @@ uniform vec3 camPos;
 
 float CalculateDirectionalIllumination(vec3 Nnor, vec3 Nto_light, vec3 NrefLight, vec3 NcamDirection)
 {
-	float ambient = 0.15f;
+	float ambient = 0.5f;
 	
 	float diffuse = max(dot(Nnor,Nto_light),0);
 
@@ -29,6 +31,8 @@ float CalculateDirectionalIllumination(vec3 Nnor, vec3 Nto_light, vec3 NrefLight
 
 void main()
 {
+	vec4 texColor = texture(mainTex, texCoords) * col;
+
 	vec3 Nnor = normalize(nor);
 	vec3 Nto_light = - normalize(lightDirection);
 	vec3 Nfrom_light =  normalize(lightDirection);
@@ -40,5 +44,5 @@ void main()
 	vec3 lightContribution= phong_directionalL * directionalLightColor;
 
 	//fColor = vec4(min(lightContribution,1) * col.xyz, 1.f);
-	fColor = vec4(lightContribution.xyz* col.xyz,1.0f);
+	fColor = vec4(lightContribution.xyz * col.xyz * texColor.xyz,1.0f);
 }
