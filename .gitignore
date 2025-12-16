@@ -1,0 +1,12 @@
+*.db
+*.user
+*.userosscache
+*.sln.docstates
+*.suo
+*.opendb
+Debug/
+Release/
+x64/
+x86/
+.vs/
+ConsoleApplication1/
