@@ -31,6 +31,7 @@ struct SCamera
 };
 
 
+
 void InitCamera(SCamera& in)
 {
 	in.Front = glm::vec3(0.0f, 0.0f, -1.0f);
@@ -39,11 +40,11 @@ void InitCamera(SCamera& in)
 	in.WorldUp = in.Up;
 	in.Right = glm::normalize(glm::cross(in.Front, in.WorldUp));
 
-	in.Yaw = -90.f;
-	in.Pitch = 0.f;
+	in.Yaw = 45.f;
+	in.Pitch = 2.f;
 }
 
-float cam_dist = 2.f;
+float cam_dist = 6.f;
 
 void MoveAndOrientCamera(SCamera& in, glm::vec3 target, float distance, float xoffset, float yoffset)
 {
