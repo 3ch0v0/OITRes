@@ -5,7 +5,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-
 #include <iostream>
 #include <vector>
 #include <map>
@@ -19,138 +18,13 @@
 #include "Common.h"
 #include "texture.h"
 #include "Timer.h"
+#include "InputController.h"
 
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "tiny_obj_loader.h"
+#include "Scene.h"
 
-float camX = .0f;
-float camZ = 0.f;
-float camY = 0.0f;
-
-const unsigned int windowWidth = 800;
-const unsigned int windowHeight = 600;
-
-bool screenshot_requested = false;
-
-//light
-glm::vec3 lightDirection = glm::vec3(-0.3f, -.51f, -.31f);
-glm::vec3 lightPos = glm::vec3(2.f, 6.f, 7.f);
-glm::vec3 lightColor = glm::vec3(0.8f, 0.8f, 0.8f);
-
-
-SCamera Camera;
-
-float cubeVertices[] = {
-	//back face
-	// positions          // col			//SPECIFY ALPHA COORDINATE HERE //nor
-	-0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 0.0f,	1.0f,							 0.0f, 0.0f, -1.0f,
-	 0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 0.0f,	1.0f,							 0.0f, 0.0f, -1.0f,		
-	 0.5f,  0.5f, -0.5f,  1.0f, 0.0f, 0.0f,	1.0f,							 0.0f, 0.0f, -1.0f,
-	 0.5f,  0.5f, -0.5f,  1.0f, 0.0f, 0.0f,	1.0f,							 0.0f, 0.0f, -1.0f,
-	-0.5f,  0.5f, -0.5f,  1.0f, 0.0f, 0.0f,	1.0f,							 0.0f, 0.0f, -1.0f,
-	-0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 0.0f,	1.0f,							 0.0f, 0.0f, -1.0f,
-
-	//front face
-	-0.5f, -0.5f,  0.5f,  0.0f, 1.0f, 0.0f,	1.0f,							 0.0f, 0.0f, 1.0f,
-	 0.5f, -0.5f,  0.5f,  0.0f, 1.0f, 0.0f,	1.0f,							 0.0f, 0.0f, 1.0f,
-	 0.5f,  0.5f,  0.5f,  0.0f, 1.0f, 0.0f,	1.0f,							 0.0f, 0.0f, 1.0f,
-	 0.5f,  0.5f,  0.5f,  0.0f, 1.0f, 0.0f,	1.0f,							 0.0f, 0.0f, 1.0f,
-	-0.5f,  0.5f,  0.5f,  0.0f, 1.0f, 0.0f,	1.0f,							 0.0f, 0.0f, 1.0f,
-	-0.5f, -0.5f,  0.5f,  0.0f, 1.0f, 0.0f,	1.0f,							 0.0f, 0.0f, 1.0f,
-
-	//left face
-	-0.5f,  0.5f,  0.5f,  0.0f, 0.0f, 1.f,	1.0f,							-1.0f, 0.0f, 0.0f,	
-	-0.5f,  0.5f, -0.5f,  0.0f, 0.0f, 1.f,	1.0f,							-1.0f, 0.0f, 0.0f,
-	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f, 1.f,	1.0f,							-1.0f, 0.0f, 0.0f,
-	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f, 1.f,	1.0f,							-1.0f, 0.0f, 0.0f,
-	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 1.f,	1.0f,							-1.0f, 0.0f, 0.0f,
-	-0.5f,  0.5f,  0.5f,  0.0f, 0.0f, 1.f,	1.0f,							-1.0f, 0.0f, 0.0f,
-
-	//right face
-	 0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 0.f,	1.0f,							1.0f, 0.0f, 0.0f,
-	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 0.f,	1.0f,							1.0f, 0.0f, 0.0f,
-	 0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 0.f,	1.0f,							1.0f, 0.0f, 0.0f,
-	 0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 0.f,	1.0f,							1.0f, 0.0f, 0.0f,
-	 0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 0.f,	1.0f,							1.0f, 0.0f, 0.0f,
-	 0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 0.f,	1.0f,							1.0f, 0.0f, 0.0f,
-
-	 //bottom face
-	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 1.f,	1.0f,							0.0f, -1.0f, 0.0f,	
-	 0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 1.f,	1.0f,							0.0f, -1.0f, 0.0f,
-	 0.5f, -0.5f,  0.5f,  0.0f, 1.0f, 1.f,	1.0f,							0.0f, -1.0f, 0.0f,
-	 0.5f, -0.5f,  0.5f,  0.0f, 1.0f, 1.f,	1.0f,							0.0f, -1.0f, 0.0f,
-	-0.5f, -0.5f,  0.5f,  0.0f, 1.0f, 1.f,	1.0f,							0.0f, -1.0f, 0.0f,
-	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 1.f,	1.0f,							0.0f, -1.0f, 0.0f,
-
-	//top face
-	-0.5f,  0.5f, -0.5f,  1.0f, 0.0f, 1.f,	1.0f,							0.0f, 1.0f, 0.0f,
-	 0.5f,  0.5f, -0.5f,  1.0f, 0.0f, 1.f,	1.0f,							0.0f, 1.0f, 0.0f,
-	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 1.f,	1.0f,							0.0f, 1.0f, 0.0f,
-	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 1.f,	1.0f,							0.0f, 1.0f, 0.0f,
-	-0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 1.f,	1.0f,							0.0f, 1.0f, 0.0f,
-	-0.5f,  0.5f, -0.5f,  1.0f, 0.0f, 1.f,	1.0f,							0.0f, 1.0f, 0.0f,
-};
-float planeVertices[] = {
-	// positions          // col			//SPECIFY ALPHA COORDINATE HERE
-	 5.0f, -0.5f,  5.0f,  1.0f, 1.0f, 1.f,	1.0f,
-	-5.0f, -0.5f,  5.0f,  1.0f, 1.0f, 1.f,	1.0f,
-	-5.0f, -0.5f, -5.0f,  1.0f, 1.0f, 1.f,	1.0f,
-
-	 5.0f, -0.5f,  5.0f,  1.0f, 1.0f, 1.f,	1.0f,
-	-5.0f, -0.5f, -5.0f,  1.0f, 1.0f, 1.f,	1.0f,
-	 5.0f, -0.5f, -5.0f,  1.0f, 1.0f, 1.f,	1.0f,
-};
-float transparentVertices[] = {
-	// positions				// RGB				//SPECIFY ALPHA COORDINATE HERE
-	-.5f,  -0.5f,  0.0f,		1.0f,  0.0f, 0.0f,	0.2f,		0.0f, 0.0f, -1.0f,
-	.0f, 0.5f,  0.0f,			1.0f,  0.0f, 0.0f,	0.2f,		0.0f, 0.0f, -1.0f,
-	.5f, -0.5f,  0.0f,			1.0f,  0.0f, 0.0f,	0.2f,		0.0f, 0.0f, -1.0f,
-};
-
-float transparentCubeVertices[] = {
-	// positions          // col			//SPECIFY ALPHA COORDINATE HERE
-	-0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 0.0f,	0.4f,							0.0f, 0.0f, -1.0f,
-	 0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 0.0f,	0.4f,							0.0f, 0.0f, -1.0f,
-	 0.5f,  0.5f, -0.5f,  1.0f, 0.0f, 0.0f,	0.4f,							0.0f, 0.0f, -1.0f,
-	 0.5f,  0.5f, -0.5f,  1.0f, 0.0f, 0.0f,	0.4f,							0.0f, 0.0f, -1.0f,
-	-0.5f,  0.5f, -0.5f,  1.0f, 0.0f, 0.0f,	0.4f,							0.0f, 0.0f, -1.0f,
-	-0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 0.0f,	0.4f,							0.0f, 0.0f, -1.0f,
-
-	-0.5f, -0.5f,  0.5f,  0.0f, 1.0f, 0.0f,	0.4f,							0.0f, 0.0f, 1.0f,
-	 0.5f, -0.5f,  0.5f,  0.0f, 1.0f, 0.0f,	0.4f,							0.0f, 0.0f, 1.0f,
-	 0.5f,  0.5f,  0.5f,  0.0f, 1.0f, 0.0f,	0.4f,							0.0f, 0.0f, 1.0f,
-	 0.5f,  0.5f,  0.5f,  0.0f, 1.0f, 0.0f,	0.4f,							0.0f, 0.0f, 1.0f,
-	-0.5f,  0.5f,  0.5f,  0.0f, 1.0f, 0.0f,	0.4f,							0.0f, 0.0f, 1.0f,
-	-0.5f, -0.5f,  0.5f,  0.0f, 1.0f, 0.0f,	0.4f,							0.0f, 0.0f, 1.0f,
-
-	-0.5f,  0.5f,  0.5f,  0.0f, 0.0f, 1.f,	0.4f,							-1.0f, 0.0f, 0.0f,
-	-0.5f,  0.5f, -0.5f,  0.0f, 0.0f, 1.f,	0.4f,							-1.0f, 0.0f, 0.0f,	
-	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f, 1.f,	0.4f,							-1.0f, 0.0f, 0.0f,
-	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f, 1.f,	0.4f,							-1.0f, 0.0f, 0.0f,
-	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 1.f,	0.4f,							-1.0f, 0.0f, 0.0f,
-	-0.5f,  0.5f,  0.5f,  0.0f, 0.0f, 1.f,	0.4f,							-1.0f, 0.0f, 0.0f,
-
-	 0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 0.f,	0.4f,							1.0f, 0.0f, 0.0f,
-	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 0.f,	0.4f,							1.0f, 0.0f, 0.0f,
-	 0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 0.f,	0.4f,							1.0f, 0.0f, 0.0f,
-	 0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 0.f,	0.4f,							1.0f, 0.0f, 0.0f,
-	 0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 0.f,	0.4f,							1.0f, 0.0f, 0.0f,
-	 0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 0.f,	0.4f,							1.0f, 0.0f, 0.0f,
-
-	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 1.f,	0.4f,							0.0f, -1.0f, 0.0f,
-	 0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 1.f,	0.4f,							0.0f, -1.0f, 0.0f,
-	 0.5f, -0.5f,  0.5f,  0.0f, 1.0f, 1.f,	0.4f,							0.0f, -1.0f, 0.0f,	
-	 0.5f, -0.5f,  0.5f,  0.0f, 1.0f, 1.f,	0.4f,							0.0f, -1.0f, 0.0f,
-	-0.5f, -0.5f,  0.5f,  0.0f, 1.0f, 1.f,	0.4f,							0.0f, -1.0f, 0.0f,
-	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 1.f,	0.4f,							0.0f, -1.0f, 0.0f,
-
-	-0.5f,  0.5f, -0.5f,  1.0f, 0.0f, 1.f,	0.4f,							0.0f, 1.0f, 0.0f,
-	 0.5f,  0.5f, -0.5f,  1.0f, 0.0f, 1.f,	0.4f,							0.0f, 1.0f, 0.0f,
-	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 1.f,	0.4f,							0.0f, 1.0f, 0.0f,
-	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 1.f,	0.4f,							0.0f, 1.0f, 0.0f,
-	-0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 1.f,	0.4f,							0.0f, 1.0f, 0.0f,	
-	-0.5f,  0.5f, -0.5f,  1.0f, 0.0f, 1.f,	0.4f,							0.0f, 1.0f, 0.0f,
-};
+Scene scene;
 
 float quadVertices[] = {
 	// positions   // texCoords
@@ -165,131 +39,6 @@ float quadVertices[] = {
 void framebuffer_size_callback(GLFWwindow* window, int w, int h)
 {
 	glViewport(0, 0, w, h);
-}
-
-void processKeyboard(GLFWwindow* window)
-{
-	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-		glfwSetWindowShouldClose(window, true);
-
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		camZ -= .01f;
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		camZ += .01f;
-	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		camX -= .01f;
-	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		camX += .01f;
-	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
-		camY -= .01f;
-	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
-		camY += .01f;
-
-	//if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-	//	glfwSetWindowShouldClose(window, true);
-
-	float x_offset = 0.f;
-	float y_offset = 0.f;
-	bool cam_changed = false;
-	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-	{
-		x_offset = 0.5f;
-		y_offset = 0.f;
-		cam_changed = true;
-	}
-
-	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-	{
-		x_offset = -0.5f;
-		y_offset = 0.f;
-		cam_changed = true;
-	}
-
-	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-	{
-		x_offset = 0.f;
-		y_offset = -0.5f;
-		cam_changed = true;
-	}
-
-	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-	{
-		x_offset = 0.f;
-		y_offset = 0.5f;
-		cam_changed = true;
-	}
-
-	if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
-	{
-		cam_dist -= 0.1f;
-		cam_changed = true;
-	}
-
-	if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)
-	{
-		cam_dist += 0.1f;
-		cam_changed = true;
-	}
-
-	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-	{
-		lightDirection = Camera.Front;
-		lightPos = Camera.Position;
-	}
-
-
-	if (cam_changed = true)
-	{
-		MoveAndOrientCamera(Camera, glm::vec3(0.f, 0.f, 0.f), cam_dist, x_offset, y_offset);
-	}
-}
-
-void setupVertexBuffers(unsigned int* VAO, unsigned int* VBO)
-{
-	glGenVertexArrays(4, VAO);
-	glGenBuffers(4, VBO);
-
-	// cube
-	glBindVertexArray(VAO[0]);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), cubeVertices, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 10 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 10 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 10 * sizeof(float), (void*)(7 * sizeof(float)));
-	glEnableVertexAttribArray(2);
-
-	// plane
-	glBindVertexArray(VAO[1]);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(planeVertices), planeVertices, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
-
-	// transparent
-	glBindVertexArray(VAO[2]);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO[2]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(transparentVertices), transparentVertices, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 10 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 10 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 10 * sizeof(float), (void*)(7 * sizeof(float)));
-	glEnableVertexAttribArray(2);
-
-	// transparent cube
-	glBindVertexArray(VAO[3]);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO[3]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(transparentCubeVertices), transparentCubeVertices, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 10 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 10 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 10 * sizeof(float), (void*)(7 * sizeof(float)));
-	glEnableVertexAttribArray(2);
 }
 
 void setupQuadVertexBuffer(unsigned int& quadVAO, unsigned int& quadVBO)
@@ -315,14 +64,14 @@ void setupWBOITFramebuffer(unsigned int& wboitFBO, unsigned int& colorTex, unsig
 	glGenTextures(1, &alphaTex);
 
 	glBindTexture(GL_TEXTURE_2D, colorTex);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, windowWidth, windowHeight, 0, GL_RGBA, GL_HALF_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, scene.windowWidth, scene.windowHeight, 0, GL_RGBA, GL_HALF_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
 	glBindTexture(GL_TEXTURE_2D, alphaTex);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_R16F, windowWidth, windowHeight, 0, GL_RED, GL_HALF_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_R16F, scene.windowWidth, scene.windowHeight, 0, GL_RED, GL_HALF_FLOAT, NULL);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -330,7 +79,7 @@ void setupWBOITFramebuffer(unsigned int& wboitFBO, unsigned int& colorTex, unsig
 
 	glGenTextures(1, &depthTex);
 	glBindTexture(GL_TEXTURE_2D, depthTex);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, windowWidth, windowHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, scene.windowWidth, scene.windowHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
@@ -349,7 +98,7 @@ void setupWBOITFramebuffer(unsigned int& wboitFBO, unsigned int& colorTex, unsig
 void renderOpaqueScene(unsigned int* VAO, unsigned int shaderProgram, glm::mat4 view, glm::mat4 projection,Model opaqueObj, glm::mat4 projectedLightSpaceMatrix, unsigned int texture, unsigned int whiteTexture)
 {
 	
-	SetShaderScene(shaderProgram, view, projection, projectedLightSpaceMatrix,Camera.Position, lightDirection, lightColor, lightPos);
+	SetShaderScene(shaderProgram, view, projection, projectedLightSpaceMatrix,scene.camera.Position, scene.lightDirection, scene.lightColor, scene.lightPos);
 
 	glm::mat4 model = glm::mat4(1.f);
 
@@ -378,9 +127,9 @@ void renderOpaqueScene(unsigned int* VAO, unsigned int shaderProgram, glm::mat4 
 	}
 }
 
-void renderTransparentScene(unsigned int* VAO, unsigned int shaderProgram, glm::mat4 view, glm::mat4 projection, std::vector<glm::vec3>& positions, Model transObj, glm::mat4 projectedLightSpaceMatrix, unsigned int texture, unsigned int whiteTexture)
+void renderTransparentScene(unsigned int* VAO, unsigned int shaderProgram, glm::mat4 view, glm::mat4 projection, Model transObj, glm::mat4 projectedLightSpaceMatrix, unsigned int texture, unsigned int whiteTexture)
 {
-	SetShaderScene(shaderProgram, view, projection, projectedLightSpaceMatrix, Camera.Position, lightDirection, lightColor, lightPos);
+	SetShaderScene(shaderProgram, view, projection, projectedLightSpaceMatrix, scene.camera.Position, scene.lightDirection, scene.lightColor, scene.lightPos);
 
 	glm::mat4 model = glm::mat4(1.f);
 	model = glm::scale(model, glm::vec3(0.5f));
@@ -419,7 +168,7 @@ void renderTransparentScene(unsigned int* VAO, unsigned int shaderProgram, glm::
 int main(int argc, char** argv)
 {
 	glfwInit();
-	GLFWwindow* window = glfwCreateWindow(windowWidth, windowHeight, "WBOIT", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(scene.windowWidth, scene.windowHeight, "WBOIT", NULL, NULL);
 	glfwMakeContextCurrent(window);
 	glfwSwapInterval(0);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
@@ -435,16 +184,6 @@ int main(int argc, char** argv)
 	unsigned int composeShader = CompileShader("compose.vert", "compose.frag");
 	//unsigned int debugShader = CompileShader("debug.vert", "debug.frag");
 
-	InitCamera(Camera);
-	Camera.Yaw = 45.f;
-	Camera.Pitch = 2.f;
-	cam_dist = 6.f;
-	MoveAndOrientCamera(Camera, glm::vec3(0, 0, 0), cam_dist, 0.f, 0.f);
-
-	// setup VAO VBO
-	unsigned int VAO[4],VBO[4];
-	setupVertexBuffers(VAO, VBO);
-
 	// quad for compose
 	unsigned int quadVAO, quadVBO;
 	setupQuadVertexBuffer(quadVAO, quadVBO);
@@ -455,14 +194,6 @@ int main(int argc, char** argv)
 	setupWBOITFramebuffer(wboitFBO, colorTex, alphaTex, depthTex);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-	//trigles positions
-	std::vector<glm::vec3> positions;
-	positions.push_back(glm::vec3(0, 0, 2.f));
-	positions.push_back(glm::vec3(0.5f, 0, 0.f));
-	positions.push_back(glm::vec3(0, 0, 1.f));
-	positions.push_back(glm::vec3(-.5f, 0, 0.5f));
-	positions.push_back(glm::vec3(0, 0, 1.5f));
 
 	//Model TransObj = loadModel("../../resource/chess-set/source/ChessSetTransparent.obj", 0.5f);
 	//Model OpaqueObj = loadModel("../../resource/chess-set/source/ChessSetOpaque.obj", 1.f);
@@ -481,23 +212,20 @@ int main(int argc, char** argv)
 	while (!glfwWindowShouldClose(window))
 	{
 		timer.Start();
-		//StartTiming();
 		static const GLfloat bgd[] = { .02f, .5f, .75f, 1.f };
 		glClearBufferfv(GL_COLOR, 0, bgd);
 		glClear(GL_DEPTH_BUFFER_BIT);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 		glm::mat4 view = glm::mat4(1.f);
-		Camera.Position += glm::vec3(camX, camY, camZ);
-		view = glm::lookAt(Camera.Position, Camera.Position + Camera.Front, Camera.Up);
-		view = glm::translate(view, -glm::vec3(camX, camY, camZ));
+		view = glm::lookAt(scene.camera.Position, scene.camera.Position + scene.camera.Front, scene.camera.Up);
 
 		glm::mat4 projection = glm::mat4(1.f);
-		projection = glm::perspective(glm::radians(45.f), (float)windowWidth / (float)windowHeight, .1f, 100.f);
+		projection = glm::perspective(glm::radians(45.f), (float)scene.windowWidth / (float)scene.windowHeight, .1f, 100.f);
 
 		float near_plane = 1.0f, far_plane = 70.5f;
 		glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
-		glm::mat4 lightView = glm::lookAt(lightPos, lightPos + lightDirection, glm::vec3(0.f, 1.f, 0.f));
+		glm::mat4 lightView = glm::lookAt(scene.lightPos, scene.lightPos + scene.lightDirection, glm::vec3(0.f, 1.f, 0.f));
 		glm::mat4 projecedLightSpaceMatrix = lightProjection * lightView;
 
 		
@@ -535,13 +263,13 @@ int main(int argc, char** argv)
 		glClearBufferfv(GL_COLOR, 1, clearColor1);
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, wboitFBO);
-		glBlitFramebuffer(0, 0, windowWidth, windowHeight, 0, 0, windowWidth, windowHeight, GL_DEPTH_BUFFER_BIT, GL_NEAREST);//
+		glBlitFramebuffer(0, 0, scene.windowWidth, scene.windowHeight, 0, 0, scene.windowWidth, scene.windowHeight, GL_DEPTH_BUFFER_BIT, GL_NEAREST);//
 		glBindFramebuffer(GL_FRAMEBUFFER, wboitFBO);
 
 		glUseProgram(wboitShader);
-		//renderTransparentScene(VAO, wboitShader, view, projection, positions, TransObj, projecedLightSpaceMatrix, ChessTex, whiteTex);
-		//renderTransparentScene(VAO, wboitShader, view, projection, positions, DragonObj, projecedLightSpaceMatrix,0,whiteTex);
-		renderTransparentScene(VAO, wboitShader, view, projection, positions, MachineObj, projecedLightSpaceMatrix,0,whiteTex);
+		//renderTransparentScene(&TransObj.VAO, wboitShader, view, projection, TransObj, projecedLightSpaceMatrix, ChessTex, whiteTex);
+		//renderTransparentScene(&DragonObj.VAO, wboitShader, view, projection, DragonObj, projecedLightSpaceMatrix,0,whiteTex);
+		renderTransparentScene(&MachineObj.VAO, wboitShader, view, projection, MachineObj, projecedLightSpaceMatrix,0,whiteTex);
 		//---- render loaded transparent model
 		
 		//----render loaded transparent model
@@ -569,17 +297,14 @@ int main(int argc, char** argv)
 		glDisable(GL_BLEND);
 		glEnable(GL_DEPTH_TEST);
 
-		//EndTimingAndDisplay(window," WBOIT ");
+
 		timer.StopAndDisplay(window, "WBOIT");
 		glfwSwapBuffers(window);
 
-		
 		glfwPollEvents();
-		processKeyboard(window);
+		processKeyboard(window, scene.camera, scene.lightPos, scene.lightDirection);
 	}
 
-	glDeleteVertexArrays(4, VAO);
-	glDeleteBuffers(4, VBO);
 	glDeleteVertexArrays(1, &quadVAO);
 	glDeleteBuffers(1, &quadVBO);
 	glDeleteFramebuffers(1, &wboitFBO);

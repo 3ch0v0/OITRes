@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 struct SCamera
 {
@@ -20,58 +21,79 @@ struct SCamera
 
 	glm::vec3 WorldUp;
 
+	glm::vec3 Target;
+
 	float Yaw;
 	float Pitch;
 
-	const float MovementSpeed = 5.5f;
-	float MouseSensitivity = 1.f;
+	float MovementSpeed;
+	float MouseSensitivity;
+	float CamDistance;
 
+	SCamera()
+	{
+		Front = glm::vec3(0.0f, 0.0f, -1.0f);
+		Position = glm::vec3(0.0f, 0.0f, 0.0f);
+		Up = glm::vec3(0.0f, 1.0f, 0.0f);
+		WorldUp = Up;
+		Right = glm::normalize(glm::cross(Front, WorldUp));
 
+		Yaw = 45.f;
+		Pitch = 2.f;
+		MouseSensitivity = 1.f;
+		MovementSpeed = 5.5f;
+		CamDistance = 6.f;
+
+		UpdateCamPosition();
+	}
+
+public:
+	void UpdateCamPosition()
+	{
+		float yawRad = glm::radians(Yaw);
+		float pitchRad = glm::radians(Pitch);
+
+		Position.x = Target.x + CamDistance * cos(yawRad) * cos(pitchRad);
+		Position.y = Target.y + CamDistance * sin(pitchRad);
+		Position.z = Target.z + CamDistance * sin(yawRad) * cos(pitchRad);
+
+		Front = glm::normalize(Target - Position);
+		Right = glm::normalize(glm::cross(Front, WorldUp));
+		Up = glm::normalize(glm::cross(Right, Front));
+	}
+
+	void Rotate(float xoffset, float yoffset)
+	{
+		Yaw += xoffset;
+		Pitch += yoffset;
+
+		if (Pitch > 89.0f)
+			Pitch = 89.0f;
+		if (Pitch < -89.0f)
+			Pitch = -89.0f;
+
+		UpdateCamPosition();
+	}
+
+	void Pan(float x, float y, float z)
+	{
+		Target.x += x;
+		Target.y += y;
+		Target.z += z;
+		UpdateCamPosition();
+	}
+
+	void Zoom(float offset)
+	{
+		CamDistance += offset;
+		if (CamDistance < 1.0f)
+			CamDistance = 1.0f;
+		UpdateCamPosition();
+	}
+	
 
 };
 
 
 
-void InitCamera(SCamera& in)
-{
-	in.Front = glm::vec3(0.0f, 0.0f, -1.0f);
-	in.Position = glm::vec3(0.0f, 0.0f, 0.0f);
-	in.Up = glm::vec3(0.0f, 1.0f, 0.0f);
-	in.WorldUp = in.Up;
-	in.Right = glm::normalize(glm::cross(in.Front, in.WorldUp));
 
-	in.Yaw = 45.f;
-	in.Pitch = 2.f;
-}
-
-float cam_dist = 6.f;
-
-void MoveAndOrientCamera(SCamera& in, glm::vec3 target, float distance, float xoffset, float yoffset)
-{
-	
-	in.Yaw += xoffset * in.MovementSpeed;
-	in.Pitch += yoffset * in.MovementSpeed;
-
-	if (in.Pitch> 89.0f)
-		in.Pitch = 89.0f;
-	if (in.Pitch < -89.0f)
-		in.Pitch = -89.0f;
-
-
-	float yawRad = glm::radians(in.Yaw);
-	float pitchRad = glm::radians(in.Pitch);
-
-	//position
-	in.Position.x = distance * cos(yawRad) * cos(pitchRad);
-	in.Position.y = distance * sin(pitchRad);
-	in.Position.z = distance * sin(yawRad) * cos(pitchRad);
-
-	in.Front = glm::normalize(target - in.Position);
-	in.Right = glm::normalize(glm::cross(in.Front, in.WorldUp));
-	in.Up = glm::normalize(glm::cross(in.Right, in.Front));
-
-
-
-
-	
-}

@@ -74,6 +74,10 @@
     <IncludePath>../../include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
     <LibraryPath>../../lib/glfw-3.4.bin.WIN64/lib-vc2022;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>../../include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <LibraryPath>../../lib/glfw-3.4.bin.WIN64/lib-vc2022;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -106,7 +110,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>STB_IMAGE_IMPLEMENTATION;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
@@ -121,7 +125,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>STB_IMAGE_IMPLEMENTATION;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
@@ -129,6 +133,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>glfw3.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -136,15 +141,24 @@
     <ClCompile Include="02_DepthPeeling.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\include\bitmap.h" />
+    <ClInclude Include="..\..\include\camera.h" />
+    <ClInclude Include="..\..\include\Common.h" />
     <ClInclude Include="..\..\include\error.h" />
     <ClInclude Include="..\..\include\file.h" />
+    <ClInclude Include="..\..\include\Model.h" />
     <ClInclude Include="..\..\include\Shader.h" />
+    <ClInclude Include="..\..\include\stb_image.h" />
+    <ClInclude Include="..\..\include\texture.h" />
+    <ClInclude Include="..\..\include\tiny_obj_loader.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="blend.frag" />
     <None Include="blend.vert" />
-    <None Include="depthpeeling.frag" />
-    <None Include="depthpeeling.vert" />
+    <None Include="compose.frag" />
+    <None Include="compose.vert" />
+    <None Include="peel.frag" />
+    <None Include="peel.vert" />
     <None Include="final.frag" />
     <None Include="final.vert" />
     <None Include="opaque.frag" />
