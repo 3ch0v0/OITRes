@@ -3,6 +3,7 @@
 #extension GL_NV_gpu_shader5 : enable
 #extension GL_NV_fragment_shader_interlock : enable
 
+layout(early_fragment_tests) in;
 layout(pixel_interlock_unordered) in;
 
 layout(binding =0, rgba32ui) coherent uniform uimage2D fragmentCounterTex;   // R:fragment count G:1st closest depth B:2nd closest depth
