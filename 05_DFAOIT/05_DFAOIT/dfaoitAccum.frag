@@ -74,7 +74,7 @@ void main()
 
     //bucket
     uvec4 counterData = imageLoad(fragmentCounterTex,coords);
-    uint fragtcount = counterData.r +1;
+    uint fragNum = counterData.r +1;
     float depth1 = uintBitsToFloat(counterData.g);
     float depth2 = uintBitsToFloat(counterData.b);
 
@@ -87,11 +87,12 @@ void main()
         imageStore(bucketTex, ivec3(coords,0), premulColor);
         depth1 = depth;
     }
+
     else if(depth<depth2)
     {
         imageStore(bucketTex, ivec3(coords,1), premulColor);
         depth2 = depth;
     }
-    imageStore(fragmentCounterTex, coords, uvec4(fragtcount, floatBitsToUint(depth1), floatBitsToUint(depth2),0));
+    imageStore(fragmentCounterTex, coords, uvec4(fragNum, floatBitsToUint(depth1), floatBitsToUint(depth2),0));
     endInvocationInterlockNV();
 }

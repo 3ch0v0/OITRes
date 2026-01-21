@@ -202,6 +202,7 @@ void renderTransparentScene(unsigned int* VAO, unsigned int shaderProgram, glm::
 
 int main(int argc, char** argv)
 {
+	
 	glfwInit();
 	GLFWwindow* window = glfwCreateWindow(scene.windowWidth, scene.windowHeight, "DFAOIT", NULL, NULL);
 	glfwMakeContextCurrent(window);
@@ -217,7 +218,7 @@ int main(int argc, char** argv)
 	unsigned int opaqueShader = CompileShader("opaque.vert", "opaque.frag");
 	unsigned int dfaoitShader = CompileShader("dfaoitAccum.vert", "dfaoitAccum.frag");
 	unsigned int composeShader = CompileShader("compose.vert", "dfaoitInfere.frag");
-	//unsigned int debugShader = CompileShader("debug.vert", "debug.frag");
+	unsigned int debugShader = CompileShader("compose.vert", "debug.frag");
 
 	// quad for compose
 	unsigned int quadVAO, quadVBO;
@@ -281,15 +282,14 @@ int main(int argc, char** argv)
 		glDepthMask(GL_TRUE);
 		glDisable(GL_BLEND);
 
-
 		glUseProgram(opaqueShader);
 		renderOpaqueScene(&OpaqueObj.VAO, opaqueShader, view, projection, OpaqueObj, projecedLightSpaceMatrix, ChessTex, whiteTex);
 		//renderOpaqueScene(&BoardObj.VAO, opaqueShader, view, projection, BoardObj, projecedLightSpaceMatrix, BoardTex, whiteTex);
 
 		//debug--begin
-		glBindFramebuffer(GL_READ_FRAMEBUFFER, opaqueFBO);
-		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0); // 0 是默认屏幕
-		glBlitFramebuffer(0, 0, scene.windowWidth, scene.windowHeight,0, 0, scene.windowWidth, scene.windowHeight,GL_COLOR_BUFFER_BIT, GL_NEAREST);
+		//glBindFramebuffer(GL_READ_FRAMEBUFFER, opaqueFBO);
+		//glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0); 
+		//glBlitFramebuffer(0, 0, scene.windowWidth, scene.windowHeight,0, 0, scene.windowWidth, scene.windowHeight,GL_COLOR_BUFFER_BIT, GL_NEAREST);
 		//debug--end
 
 		// ========== Pass 2: Render transparent obj to DFAOIT buffer ==========
@@ -344,11 +344,11 @@ int main(int argc, char** argv)
 		glBindTexture(GL_TEXTURE_2D, opaqueColorTex);
 		glUniform1i(glGetUniformLocation(composeShader, "opaqueTex"), 4);
 
-		//glBindVertexArray(quadVAO);
-		//glDrawArrays(GL_TRIANGLES, 0, 6);
+		glBindVertexArray(quadVAO);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
 
-		//glDisable(GL_BLEND);
-		//glEnable(GL_DEPTH_TEST);
+		glDisable(GL_BLEND);
+		glEnable(GL_DEPTH_TEST);
 
 
 		timer.StopAndDisplay(window, "DFAOIT");

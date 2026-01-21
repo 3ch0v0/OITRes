@@ -33,5 +33,106 @@ float relu(float x)
 
 void main()
 {
+	vec4 bgColor = vec4(texture(opaqueTex,texCoords).rgb, 1.0f);
+	//frags number
+	ivec2 coords = ivec2(gl_FragCoord.xy);
+	uvec4 counterData = imageLoad(fragmentCounterTex,coords);
+	uint fragmentNum = counterData.r;
+
+	//acc Color
+	vec4 accColor= imageLoad(accTex,coords);
+	vec3 Cacc = accColor.rgb;
+
+	//average Color
+	vec4 averageColor= imageLoad(averageTex,coords);
+
+	//first and second layer
+	vec4 layers[2];
+	layers[0]= imageLoad(bucketTex,ivec3(coords,0));
+	layers[1]= imageLoad(bucketTex,ivec3(coords,1));
+	vec3 bgAccumColor = bgColor.rgb*accColor.a;
+	vec4 Coit;
+
+	if(fragmentNum==0)
+	{
+		fragColor = bgColor;
+		return;
+	}
+	if(fragmentNum==1)
+	{
+		fragColor = vec4(layers[0].rgb + bgAccumColor,1.0f);
+		return;
+	}
+
+	vec3 frontColor = layers[0].rgb + layers[1].rgb*(1-layers[0].a);
+
+	if(fragmentNum>=2)
+	{
 	
+		Coit = vec4(frontColor+ bgAccumColor,1.0f);
+		fragColor=Coit;
+		return;
+	}
+	
+	float avgNum= float(fragmentNum -2);
+	float Aavg = (averageColor.a-layers[0].a-layers[1].a) /avgNum;
+	vec3 unPremulColor0 = layers[0].rgb/max(layers[0].a,0.001);
+	vec3 unPremulColor1 = layers[1].rgb/max(layers[1].a,0.001);
+	vec3 Cavg = (averageColor.rgb-unPremulColor0-unPremulColor1) / avgNum;
+
+	//10 inputFeature feature
+	//0:Aavg,Average opacity excluding the front two fragments
+	//1-3:Cavg,Average RGB colour, excluding the front two fragments
+	//4-7:Cacc, Accumulated premultiplied alpha RGB colour
+	//8-10:Coit,oit color of layer1&2
+
+	float inputFeature[1][10];
+	inputFeature[0][0]= Aavg;
+	inputFeature[0][1]= Cavg.r;	inputFeature[0][2]= Cavg.g;	inputFeature[0][3]= Cavg.b;
+	inputFeature[0][4]= Cacc.r;	inputFeature[0][5]= Cacc.g;	inputFeature[0][6]= Cacc.b;
+	inputFeature[0][7]= Coit.r;	inputFeature[0][8]= Coit.g;	inputFeature[0][9]= Coit.b;
+
+	//MLP
+	float rslt1[32]; //hidden layer1
+	float rslt2[16];//hidden layer2
+
+	//layer1
+	for(int i=0;i<32;i++)
+	{
+		rslt1[i]=0.0f;
+		for(int j=0;j<10;j++)
+		{
+			rslt1[i] += inputFeature[0][j]*weights1[j][i];
+		}
+		rslt1[i] += bias1[i];
+		rslt1[i] = relu(rslt1[i]);
+	}
+
+	//layer2
+	for(int i=0;i<16;i++)
+	{
+		rslt2[i]=0.0f;
+		for(int j=0;j<32;j++)
+		{
+			rslt2[i] += rslt1[j]*weights2[j][i];
+		}
+		rslt2[i] += bias2[i];
+		rslt2[i] = relu(rslt2[i]);
+	}
+	//output
+	float predictedColor[3];
+	for(int i=0;i<3;i++)
+	{
+		predictedColor[i]=0.0f;
+		for(int j=0;j<16;j++)
+		{
+			predictedColor[i] += rslt2[j]*weights3[j][i];
+		}
+		predictedColor[i] += bias3[i];
+		predictedColor[i] = sigmoid(predictedColor[i]);
+	}
+
+	vec3 tailColor = vec3(predictedColor[0],predictedColor[1],predictedColor[2]);
+	vec3 finalColor = frontColor + tailColor*(1.0 - layers[0].a) * (1.0 - layers[1].a)+ bgAccumColor.rgb;
+	fragColor = vec4(finalColor,1.0f);
 }

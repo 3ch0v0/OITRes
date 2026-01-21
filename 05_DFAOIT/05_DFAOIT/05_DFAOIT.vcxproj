@@ -142,6 +142,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\camera.h" />
+    <ClInclude Include="..\..\include\Common.h" />
     <ClInclude Include="..\..\include\error.h" />
     <ClInclude Include="..\..\include\file.h" />
     <ClInclude Include="..\..\include\InputController.h" />
@@ -157,6 +158,8 @@
     <None Include="compose.vert" />
     <None Include="debug.frag" />
     <None Include="debug.vert" />
+    <None Include="dfaoitInfere.frag" />
+    <None Include="dfaoitInfere.vert" />
     <None Include="opaque.frag" />
     <None Include="opaque.vert" />
     <None Include="dfaoitAccum.frag" />
