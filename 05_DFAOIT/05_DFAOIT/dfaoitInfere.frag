@@ -53,32 +53,35 @@ void main()
 	vec3 bgAccumColor = bgColor.rgb*accColor.a;
 	vec4 Coit;
 
-	if(fragmentNum==0)
+	if(accColor.a == 1)
 	{
 		fragColor = bgColor;
 		return;
 	}
+
+	vec3 frontColor = layers[0].rgb + layers[1].rgb*(1-layers[0].a);
+
 	if(fragmentNum==1)
 	{
 		fragColor = vec4(layers[0].rgb + bgAccumColor,1.0f);
 		return;
 	}
 
-	vec3 frontColor = layers[0].rgb + layers[1].rgb*(1-layers[0].a);
+	
 
-	if(fragmentNum>=2)
+	else if(fragmentNum==2)
 	{
 	
 		Coit = vec4(frontColor+ bgAccumColor,1.0f);
 		fragColor=Coit;
 		return;
 	}
-	
-	float avgNum= float(fragmentNum -2);
-	float Aavg = (averageColor.a-layers[0].a-layers[1].a) /avgNum;
+	else {
+	float avgNum= max(1.0f,float(fragmentNum -2));
+	float Aavg = (averageColor.a-layers[0].a-layers[1].a) / avgNum;
 	vec3 unPremulColor0 = layers[0].rgb/max(layers[0].a,0.001);
 	vec3 unPremulColor1 = layers[1].rgb/max(layers[1].a,0.001);
-	vec3 Cavg = (averageColor.rgb-unPremulColor0-unPremulColor1) / avgNum;
+	vec3 Cavg = max(vec3(0.0),(averageColor.rgb-unPremulColor0-unPremulColor1)) / avgNum;
 
 	//10 inputFeature feature
 	//0:Aavg,Average opacity excluding the front two fragments
@@ -132,7 +135,12 @@ void main()
 		predictedColor[i] = sigmoid(predictedColor[i]);
 	}
 
+	vec3 debugTail = Cavg;
+	vec3 simpleTail = Cavg * Aavg * avgNum;
+
 	vec3 tailColor = vec3(predictedColor[0],predictedColor[1],predictedColor[2]);
+	//vec3 tailColor=simpleTail;
 	vec3 finalColor = frontColor + tailColor*(1.0 - layers[0].a) * (1.0 - layers[1].a)+ bgAccumColor.rgb;
 	fragColor = vec4(finalColor,1.0f);
+	}
 }
